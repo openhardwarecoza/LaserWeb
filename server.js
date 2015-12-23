@@ -37,13 +37,14 @@ var url = require('url');
 var qs = require('querystring');
 var util = require('util');
 var http = require('http');
+var chalk = require('chalk');
 
 // test for webcam
 config.showWebCam = false;
 
 http.get('http://127.0.0.1:8080', function(res) {
 	// valid response, enable webcam
-	console.log('enabling webcam');
+	console.log(chalk.gray('Enabling webcam'));
 	config.showWebCam = true;
 }).on('socket', function(socket) {
 	// 2 second timeout on this socket
@@ -52,7 +53,10 @@ http.get('http://127.0.0.1:8080', function(res) {
 		this.abort();
 	});
 }).on('error', function(e) {
-	console.log('Got error: '+e.message+' not enabling webcam')
+	console.error(
+		chalk.red('Error connecting to webcam'),
+		chalk.gray(e.message)
+	);
 });
 
 app.listen(config.webPort);
@@ -60,10 +64,10 @@ var fileServer = new static.Server('./i');
 
 function handler (req, res) {
 
-	//console.log('url request: '+req.url);
-
 	fileServer.serve(req, res, function (err, result) {
-		if (err) console.log('fileServer error: ',err);
+		if (err) {
+			console.error(chalk.red('fileServer error:'), err.message);
+		}
 	});
 }
 
@@ -98,7 +102,12 @@ serialport.list(function (err, ports) {
 
 		sp[i].handle.on("open", function() {
 
-			console.log('connected to '+sp[i].port+' at '+config.serialBaudRate);
+			console.log(
+				chalk.green('Connected to'),
+				chalk.blue(sp[i].port),
+				chalk.green('at'),
+				chalk.blue(config.serialBaudRate)
+			);
 			sp[i].handle.write("?\n"); // Lets check if its LasaurGrbl?
 			sp[i].handle.write("M115\n"); // Lets check if its Marlin?
 			sp[i].handle.write("version\n"); // Lets check if its Smoothieware?
@@ -118,6 +127,18 @@ serialport.list(function (err, ports) {
 		//	}, 1000);
 
 
+		});
+
+		sp[i].handle.on('error', function (error) {
+			var errMsg = 'Cannot open';
+			if (error.message.slice(0, errMsg.length) === errMsg) {
+				console.error(
+					chalk.red('Could not connect to device:'),
+					chalk.blue(sp[i].port)
+				);
+			} else {
+				throw error
+			}
 		});
 
 	}(i)
