@@ -314,9 +314,13 @@ function PostGcode() {
 									if (firmware.indexOf('Grbl') == 0) {
 											s += 'M3\n'
 									}
-
-									s += 'G1 X'+posx+' Y'+gcodey+' S'+lastIntensity+'\n';
-
+									if (lastIntensity == 0) {
+										// If we are not burning, there is no need to move the laser
+										s += 'G1 S'+lastIntensity+'\n'
+									} else {
+										s += 'G1 X'+posx+' Y'+gcodey+' S'+lastIntensity+'\n';
+									}
+									
 									if (firmware.indexOf('Grbl') == 0) {
 											s += 'M5\n'
 									}
