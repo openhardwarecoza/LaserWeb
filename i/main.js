@@ -26,6 +26,7 @@
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU Affero General Public License for more details.
 
+
     You should have received a copy of the GNU Affero General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
@@ -969,6 +970,8 @@ $(document).ready(function() {
 	$('#homeX').on('click', function() {
 		if (firmware.indexOf('Lasaur') == 0) {
 			socket.emit('gcodeLine', { line: 'G30' });
+		} else if (firmware.indexOf('Grbl') == 0) {
+			socket.emit('gcodeLine', { line: '$H' });
 		} else {
 			socket.emit('gcodeLine', { line: 'G28 X0' });
 		}
@@ -977,6 +980,8 @@ $(document).ready(function() {
 	$('#homeY').on('click', function() {
 		if (firmware.indexOf('Lasaur') == 0) {
 			socket.emit('gcodeLine', { line: 'G30' });
+		} else if (firmware.indexOf('Grbl') == 0) {
+			socket.emit('gcodeLine', { line: '$H' });
 		} else {
 			socket.emit('gcodeLine', { line: 'G28 Y0' });
 		}
@@ -985,6 +990,8 @@ $(document).ready(function() {
 	$('#homeZ').on('click', function() {
 		if (firmware.indexOf('Lasaur') == 0) {
 			socket.emit('gcodeLine', { line: 'G30' });
+		} else if (firmware.indexOf('Grbl') == 0) {
+			socket.emit('gcodeLine', { line: '$H' });
 		} else {
 			socket.emit('gcodeLine', { line: 'G28 Z0' });
 		}
@@ -993,6 +1000,8 @@ $(document).ready(function() {
 	$('#homeAll').on('click', function() {
 		if (firmware.indexOf('Lasaur') == 0) {
 			socket.emit('gcodeLine', { line: 'G30' });
+		} else if (firmware.indexOf('Grbl') == 0) {
+			socket.emit('gcodeLine', { line: '$H' });
 		} else {
 			socket.emit('gcodeLine', { line: 'G28' });
 		}
@@ -1170,12 +1179,22 @@ $(document).ready(function() {
 
 			fileName = fileInputDXF.value.replace("C:\\fakepath\\", "");
 			dxf = new Dxf();
+
+
 			pwr = {};
 			cutSpeed = {};
 			row = [];
 
 			$('#console').append('<p class="pf" style="color: #000000;"><b>Parsing DXF:...</b></p>');
 			$('#console').scrollTop($("#console")[0].scrollHeight - $("#console").height());
+
+			//NEW Dxf
+			var parser2 = new window.DxfParser();
+			var dxf2 = parser2.parseSync(r.result);
+			cadCanvas = new processDXF(dxf2);
+
+			//END NEW DXF
+
 
 			dxf.parseDxf(r.result);
 

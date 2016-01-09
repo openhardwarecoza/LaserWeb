@@ -98,7 +98,10 @@ this.RasterNow = function( _callback){
     // Iterate through the Pixels
 
     for (var y = 0; y < raster.height; y++) {
-      var newline = (imgheight * spotSize1) - y;
+      posy = y;
+      posy = (posy * spotSize1);
+      posy = posy.toFixed(1);
+      newLine = (imgheight * spotSize1) - posy  // Offset Y since Gcode runs from bottom left and paper.js runs from top left
       s += 'G0 Y'+newline+'\n';
       // Left To Right!
       if (dir > 0) {

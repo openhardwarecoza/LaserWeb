@@ -42,13 +42,13 @@ function createObject(gcode) {
         scene.remove(cylinder);
     }
 	// jogArrow Cylinder
-    		cylinder = new THREE.Mesh(new THREE.CylinderGeometry(0, 5, 40, 15, 1, false), new THREE.MeshNormalMaterial());
-            cylinder.overdraw = true;
-            cylinder.rotation.x = -90 * Math.PI / 180;
-            cylinder.material.opacity = 0.6;
-            cylinder.material.transparent = true;
-            cylinder.castShadow = false;
-            cylinder.position.x = (laserxmax /2 * -1)
+    	cylinder = new THREE.Mesh(new THREE.CylinderGeometry(0, 5, 35, 15, 1, false), new THREE.MeshBasicMaterial( {color: 0x005599} ));
+      cylinder.overdraw = true;
+      cylinder.rotation.x = -90 * Math.PI / 180;
+      cylinder.material.opacity = 0.6;
+      cylinder.material.transparent = true;
+      cylinder.castShadow = false;
+      cylinder.position.x = (laserxmax /2 * -1)
 			cylinder.position.y = (laserymax /2 * -1)
 			cylinder.position.z = 20;
 			cylinder.needsUpdate = true;

@@ -63,9 +63,6 @@ Dxf.prototype.crossProduct = function(v1,v2) {
 
 Dxf.prototype.calcBulgeCenter = function(p1,p2) {
 
-	console.log(p1);
-	console.log(p2);
-
 	var bulge = p1[2];
 
 	var chord = [];
@@ -261,6 +258,8 @@ Dxf.prototype.handleArc = function(d) {
 	// now we need to create the line segments in the arc
 	var numSegments = 40;
 	var degreeStep = arcTotalDeg / numSegments;
+
+  console.log('MILLCRUM:  thisArc: '+thisArc)
 
 	// holder for the path
 	var newPoints = [];
