@@ -104,19 +104,22 @@ this.RasterNow = function( _callback){
       newLine = (imgheight * spotSize1) - posy  // Offset Y since Gcode runs from bottom left and paper.js runs from top left
       s += 'G0 Y'+newline+'\n';
       // Left To Right!
-      if (dir > 0) {
-		    for(var x = 0; x < raster.width + 1 ; x++) {
+	  for(var x = 0; x < raster.width ; x++) {
         //console.log('Spot: X: '+x+' Y: '+y);
         megaPixel++
         color = raster.getPixel(x, y);
         // Scale the path by the amount of gray in the pixel color:
         grayLevel = color.gray.toFixed(1);  // var grayLevel = color.gray.toFixed(2); // two decimal precision is plenty - for testing I will drop it to 1 decimal (10% increments)
-        posx = x + 1;
+        if (dir > 0) {
+			posx = x + 1;
+		} else {
+			posx = raster.width -1 -x
+		}
         posy = y;
 
 
         // Optimise: when the greyValue is the same as the one before, we don't write it, we append it and write on longer G1 move instead
-				if (typeof lastGrey != 'undefined' && lastGrey == grayLevel && x != raster.width && x != 0) {  // Optimisation code:  Test file without this was 50363 lines, with this was only 18292 lines.
+				if (typeof lastGrey != 'undefined' && lastGrey == grayLevel && (x+1) != raster.width && x != 0) {  // Optimisation code:  Test file without this was 50363 lines, with this was only 18292 lines.
 					//console.log('Could Optimise, still on '+grayLevel);
 					xm++; // Increment the X step over
           skip++
@@ -190,107 +193,8 @@ this.RasterNow = function( _callback){
       if (xm > 0) {
         //posx = posx - (xm / 1000);
       }
-      if (lastIntensity > 0 && posx == 0) {
-        //  console.log('G1 X'+posx+' Y'+gcodey+' S'+lastIntensity+'\n');
-        s += 'G1 X'+posx+' Y'+gcodey+' S'+lastIntensity+'\n';
-        var lastGrey = grayLevel; // store to compare in next loop
-      }
-      dir = 0;
-    } else { // Direction Change
-      // Right to Left
-      for(var x = raster.width  ; x > -2 ; x--) {
-        if (x > raster.width - 1) {
-          // Console.log(Padding for Gcode)
-        } else {
-          //console.log('Spot: X: '+x+' Y: '+y);
-          megaPixel++
-          color = raster.getPixel(x, y);
-          // Scale the path by the amount of gray in the pixel color:
-          grayLevel = color.gray.toFixed(1);
-          posx = x + 2;
-          posy = y;
-
-          // Optimise: when the greyValue is the same as the one before, we don't write it, we append it and write on longer G1 move instead
-          if (typeof lastGrey != 'undefined' && lastGrey == grayLevel && x != (raster.width - 1) && x > 0 ) {  // Optimisation code:  Test file without this was 50363 lines, with this was only 18292 lines.
-            //console.log('Could Optimise, still on '+grayLevel);
-            xm++; // Increment the X step over
-            skip++
-          } else {
-
-          if (xm > 0) {
-            posx = posx - (xm / 1000);
-          }
-
-          intensity = (1 -grayLevel) * 100; //  Also add out Firmware specific mapping using intensity (which is 0-100) and map it between minIntensity and maxIntensity variables above * firmware specific multiplier (grbl 0-255, smoothie 0-1, etc)
-          //Constraining Laser power between minIntensity and maxIntensity
-          //console.log('Constraining');
-
-          if (parseFloat(intensity) > 0) {
-              intensity = intensity.map(0, 100, parseInt(minIntensity,10), parseInt(maxIntensity,10));
-          } else {
-              intensity = 0;
-          };
-
-          // Firmware Specific Gcode Output
-          if (firmware.indexOf('Grbl') == 0) {
-             intensity = intensity.map(0, 100, 0, 255);
-             //console.log('Mapping Intensity range for Grbl S0-S255');
-             intensity = intensity.toFixed(0);
-          } else if (firmware.indexOf('Smooth') == 0) {
-             intensity = intensity.map(0, 100, 0, 1);
-             //console.log('Mapping Intensity range for Smoothieware S0-S1');
-             intensity = intensity.toFixed(2);
-          } else {
-             intensity = intensity.map(0, 100, 0, 100);
-             //console.log('Mapping Intensity range for S0-S100');
-             intensity = intensity.toFixed(0);
-          }
-
-          c++;
-          xm = 0;
-          //console.log('From: '+lastPosx+', '+lastPosy+'  - To: '+posx+', '+posy+' at '+lastIntensity+'%');
-
-          posx = (posx * spotSize1);
-          posy = (posy * spotSize1);
-          posx = posx.toFixed(1);
-          posy = posy.toFixed(1);
-          gcodey = (imgheight * spotSize1) - posy  // Offset Y since Gcode runs from bottom left and paper.js runs from top left
-          gcodey = gcodey.toFixed(1);
-
-            if (lastIntensity > 0) {
-              s += 'G1 X'+posx+' Y'+gcodey+' S'+lastIntensity+'; Engrave <-\n';
-            } else {
-              if (intensity > 0) {
-                s += 'G0 X'+posx+' Y'+gcodey+' ; Whitespace <-\n';
-              };
-
-            }
-
-            // Draw canvas (not used for GCODE generation)
-            path = new Path.Line({
-                from: [(lastPosx * gridSize), (lastPosy * gridSize)],
-                to: [(posx * gridSize), (posy * gridSize)],
-                strokeColor: 'black'
-            });
-            path.strokeColor = 'black';
-            //path.scale(1 - grayLevel);
-            path.opacity = (lastIntensity / 100);
-            // store to use in next loop
-            var lastIntensity = intensity;
-            var lastGrey = grayLevel; // store to compare in next loop
-          }
-        }
-      var lastGrey = grayLevel; // store to compare in next loop
-      }
-      //End of line handling
-      if (lastIntensity > 0 && posx == raster.width) {
-        console.log('G1 X'+posx+' Y'+gcodey+' S'+lastIntensity+'\n');
-        //  s += 'G1 X'+posx+' Y'+gcodey+' S'+lastIntensity+'\n';
-        var lastGrey = grayLevel; // store to compare in next loop
-      }
-      dir = 1;
-    };
-  }
+      dir = - dir;
+    }
 
   // Populate the GCode textarea
   document.getElementById('gcodepreview').value = s;
