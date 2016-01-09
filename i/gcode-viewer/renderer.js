@@ -1,3 +1,9 @@
+/*
+
+    AUTHOR:  John Lauer
+
+*/
+
 function createScene(element) {
     // renderer setup
     renderer = new THREE.WebGLRenderer({

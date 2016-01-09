@@ -1,3 +1,11 @@
+/*
+
+    AUTHOR:  John Lauer
+    -- Significant UI changes by AUTHOR: Peter van der Walt
+
+*/
+
+
 var scene = null;
 var object = null;
 var cylinder = null;
@@ -147,20 +155,27 @@ function createObject(gcode) {
 	}
 
 function openGCodeFromText() {
+	console.time("Process 3D View");
+	var startTime = Date.now();
 	var gcode = $('#gcodepreview').val();
-	if (document.hasFocus()) {
+	//if (document.hasFocus()) {
 	createObject(gcode);
         //console.log('adding object with existing focus');
-    } else {
+  //  } else {
         // wait for focus, then render
         //console.log('waiting for focus');
-	$(window).bind('focus', function(event) {
-	    createObject(gcode);
-            //console.log('focus exists');
-            // unbind for next object load
+	//$(window).bind('focus', function(event) {
+	//    createObject(gcode);
+  //          //console.log('focus exists');
+  //          // unbind for next object load
             $(this).unbind(event);
-        });
-    }
+  //      });
+  //  }
+	console.timeEnd("Process 3D View");
+	var currentTime = Date.now();
+	var elapsed = (currentTime - startTime);
+	$('#console').append('<p class="pf" style="color: #009900;"><b>3D Render completed in '+elapsed+' ms</b></p>');
+	$('#console').scrollTop($("#console")[0].scrollHeight - $("#console").height());
 }
 
 function makeSprite(scene, rendererType, vals) {

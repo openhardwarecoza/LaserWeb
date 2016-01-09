@@ -30,33 +30,8 @@ Then every day, run ```./update.sh ```
 
 ## Changelog
 
+[![changelog]](https://github.com/openhardwarecoza/LaserWeb/blob/master/changelog.txt)
 
-* 6 Jan 2016: Raster Engraving is live!  Click the Raster button under the file open toolbar
-* 4 Jan 2016: Added working S?? support to the 3D viewer's Gcode parser to show the laser intensity on the 3D viewer - screenshot below
-* 31 Dec 2015: Working Javascript/PaperScript based Raster to GCODE code committed - long way from a fully support Raster Engraving solution, but thats the first most major step done:  See detailed implementation log on https://github.com/openhardwarecoza/LaserWeb/issues/32
-* 30 Dec 2014: Added a parametric Tabbed Box Generator based on http://ingegno.be/Manuals/openjscad/boxmaker.html
-* 30 Dec 2015: Added a parametric Gear Generator based on hessmer.org/gears/InvoluteSpurGearBuilder.html
-* 30 Dec 2015: Added a OpenJSCAD based engine to allow in-Laserweb apps like the ones above
-* 27 Dec 2015: Added a little more instructions to readme
-* 26 Dec 2015: Consider SVG broken for now. Please test DXF etc  - we may need to switch to a different SVG Library - let me know if you can help
-* 25 Dec 2015: Added per-layer (DXF) and per-path (SVG) Laser Power and Feedrate settings to the DXF/SVG Importing code
-* 25 Dec 2015: Merry Christmas!  And merged in @oxydum's Grbl-compatible mc.js code
-* 24 Dec 2015: Added error handling for /dev/ttyS ports on linux, @Cinezaster contributed a fix for package.json, @oxydum contributed better mc.js code for Grbl lasers
-* 23 Dec 2015: @danawoodman contributed code to handle serial port errors elegantly, allow overriding config using environment variables, and add some editor/gitignore to help the developers
-* 22 Dec 2015: Added capability to run various controllers off one PC, all with different firmwares. Switching in the browser's dropdown between serial ports, changes the UI to match the firmware in use on that port!  Groundbreaking!
-* 22 Dec 2015: Added Grbl Support
-* 21 Dec 2015: Added Lasersaur Support - Autodetect which firmware is loaded on the machine, and adapts Gcode dialect, UI elements, etc to suit the features of the attached machine
-* 20 Dec 2015: Added a right-click context menu to 3D viewer
-* 20 Dec 2015: Fixed Window resize didnt fix viewport bug
-* 16 Dec 2015: Added Webcam Widget
-* 15 Dec 2015: Added Scale, Translate, Flip functions
-* 15 Dec 2015: Added Support for SmoothieBoard / SmoothieWare to Master branch
-* 15 Dec 2015: Added Clear GCode button instead of clearing GCode automatically. Helps if you want to repeat same job a few times.
-* 19 Nov 2015: Upgraded to latest socket.io and serialport versions (Socket.io 1.3.7 and SerialPort 2.0.5) since there are precompiled binaries for Windows - no more recompile required
-* 18 Nov 2015: Upgraded to Bootstrap 3.3.5 and changed to a responsive layout
-* 17 Nov 2015: Integrated Millcrum.com libraries to provide DXF, SVG and MILLCRUM support
-* 10 Nov 2015: Added FontAwesome icons, moved Jogging to a Modal widget so its out of the way when not in use
-* 8 Nov 2015:  Project started
 
 ### Web Application
 ![LaserWeb](https://raw.githubusercontent.com/openhardwarecoza/LaserWeb/master/screenshots/laserweb.PNG)
@@ -166,7 +141,7 @@ Procedure courtery of @quillford : https://github.com/openhardwarecoza/LaserWeb/
 3. Go to the directory you would like to install LaserWeb in by entering ```cd Desktop``` for example
 4. Enter ```git clone https://github.com/openhardwarecoza/LaserWeb.git``` then ```cd LaserWeb```
 5. Next install the npm modules by entering the following```
-npm install serialport socket.io node-static dotenv```
+npm install ```
 6. Finally enter ```nodejs server.js```
 
 ## Ubuntu MJPG_Streamer Install
@@ -189,8 +164,7 @@ Procedure courtery of @LordFennec : https://github.com/openhardwarecoza/LaserWeb
 4. Go to the directory you would like to install LaserWeb in by entering ```cd Desktop``` for example
 5. Enter ```git clone https://github.com/openhardwarecoza/LaserWeb.git``` then ```cd LaserWeb```
 6. Next install the npm modules by entering the following
-```npm install serialport@1.6.1```
-```npm install socket.io node-static dotenv```
+```npm install```
 7. Finally enter ```nodejs server.js```
 
 

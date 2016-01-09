@@ -1,5 +1,11 @@
 /*
 
+		AUTHOR: Peter van der Walt
+		With:
+		Serial, DRO, Webcam: Andrew Hodel
+		Jog Widget:  Arthur Wolf and Kliment
+		3D Viewer:  John Lauer and Joe Walnes
+
     LaserWeb - A Web Based Marlin Laser cutter Controller
     Copyright (C) 2015 Andrew Hodel & Peter van der Walt
 
@@ -43,6 +49,20 @@ firmware = '';
 
 
 $(document).ready(function() {
+
+	$('#3dpmode').click(function() {
+    var $this = $(this);
+    // $this will contain a reference to the checkbox
+    if ($this.is(':checked')) {
+        console.log('3dmode active');
+				$('#tempDisplay').show();
+				$('#tempControl').show();
+    } else {
+        console.log('3dmode Stopped');
+				$('#tempDisplay').hide();
+				$('#tempControl').hide();
+    }
+	});
 
 	$('#thickness').change(function() {
 		$('#perpass').val($(this).val());
@@ -121,7 +141,7 @@ $(document).ready(function() {
 				scene.remove( boundingBox );
 			}
 			openGCodeFromText();
-			gCodeToSend = data.val;
+			CodeToSend = data.val;
 			document.getElementById('fileName').value = 'api-data';
 			$('#mainStatus').html('Status: <b>LaserWeb API </b>');
 			$('#sendToLaser').removeClass('disabled');
@@ -162,9 +182,71 @@ $(document).ready(function() {
 		$('#sendCommand').removeClass('disabled');
     });
 
+	// Updater
+
+	$('#viewChangelog').click(function() {
+		$.get( "https://raw.githubusercontent.com/openhardwarecoza/LaserWeb/master/changelog.txt", function( data ) {
+			var lines = data.split('\n');
+			for (var line = 0; line < lines.length; line++){
+      $( "#changelog" ).append(lines[line] + '<br/>');
+    	}
+		});
+		$('#changewidget').modal('toggle');
+	});
+
+	$('#updateGit').click(function() {
+		socket.emit('updateGit', 1);
+		$('#console').append('<p class="pf" style="color: #000099 ;"><b>Checking for Updates on github.com/openhardwarecoza/LaserWeb...</b></p>');
+		$('#console').scrollTop($("#console")[0].scrollHeight - $("#console").height());
+	});
+
+	$('#upgradeGit').click(function() {
+		socket.emit('upgradeGit', 1);
+		$('#console').append('<p class="pf" style="color: #000099 ;"><b>Upgrading LaserWeb Software...</b></p>');
+		$('#console').scrollTop($("#console")[0].scrollHeight - $("#console").height());
+	});
+
+	socket.on('updateStatus', function (data) {
+		$('#console').append('<p class="pf" style="color: #000 ;">'+data+'</p>');
+		$('#console').scrollTop($("#console")[0].scrollHeight - $("#console").height());
+		if (data.indexOf('up-to-date') != -1) {
+			$('#console').append('<p class="pf" style="color: #009900 ;"><b>LaserWeb is already up to date</b></p>');
+			$('#console').scrollTop($("#console")[0].scrollHeight - $("#console").height());
+			$('#updateGit').show();
+			$('#upgradeGit').hide();
+
+		};
+		if (data.indexOf(' branch is behind') != -1) {
+			$('#console').append('<p class="pf" style="color: #990000 ;"><b>Updated version of LaserWeb Available</b></p>');
+			$('#console').append('<p class="pf" style="color: #222222 ;"><b>New Major features:</b></p>');
+			$('#console').scrollTop($("#console")[0].scrollHeight - $("#console").height());
+			$.get( "https://raw.githubusercontent.com/openhardwarecoza/LaserWeb/master/changelog.txt", function( data ) {
+				var lines = data.split('\n');
+				for (var line = 0; line < 4; line++){
+					$('#console').append('<p class="pf" style="color: #222222 ;">'+lines[line]+'</p>');
+					$('#console').scrollTop($("#console")[0].scrollHeight - $("#console").height());
+				}
+				$('#console').append('<p class="pf" style="color: #e07900 ;"><b>Click Upgrade!</b></p>');
+				$('#console').scrollTop($("#console")[0].scrollHeight - $("#console").height());
+			});
+			$('#updateGit').hide();
+			$('#upgradeGit').show();
+		};
+	});
+
+	socket.on('upgradeStatus', function (data) {
+		$('#console').append('<p class="pf" style="color: #000 ;">'+data+'</p>');
+		$('#console').scrollTop($("#console")[0].scrollHeight - $("#console").height());
+		$('#updateGit').show();
+		$('#upgradeGit').hide();
+		$('#console').append('<p class="pf" style="color: #009900 ;"><b>Upgrade Complete. Restart LaserWeb Please!</b></p>');
+		$('#console').scrollTop($("#console")[0].scrollHeight - $("#console").height());
+	});
+
 	// obtain config options from server
 	socket.on('config', function (data) {
 		//console.log(data);
+		$('#updateGit').click(); // Check for updates on startup - very nb - I add code to Laserweb so often!
 		laserxmax = data.xmax
 		laserymax = data.ymax
 
@@ -204,8 +286,10 @@ $(document).ready(function() {
 		} else if (data.c == '3') {
 			col = 'black';
 		}
-		$('#console').append('<p class="pf" style="color: '+col+';">'+data.l+'</p>');
-		$('#console').scrollTop($("#console")[0].scrollHeight - $("#console").height());
+		if (data.l.indexOf('ok') != 0 && data.l.indexOf('wait') != 0) {  // Seeing OK all the time distracts users from paying attention
+			$('#console').append('<p class="pf" style="color: '+col+';">'+data.l+'</p>');
+			$('#console').scrollTop($("#console")[0].scrollHeight - $("#console").height());
+		}
 	});
 
 	$('#choosePort').on('change', function() {
@@ -304,7 +388,7 @@ $(document).ready(function() {
 		}
 	});
 
-
+/* // Disabling the context menu - not as useful as I thought it would be
 	 $.fn.contextMenu = function (settings) {
 		return this.each(function () {
 
@@ -354,7 +438,8 @@ $(document).ready(function() {
 		    return position;
 		}
 
-	    };
+	};
+
 
 
 	$("#renderArea").contextMenu({
@@ -365,6 +450,8 @@ $(document).ready(function() {
 //		alert(msg);
 //	    }
 	});
+
+*/
 
 
 
@@ -1881,8 +1968,63 @@ $('#boxButton').on('click', function() {
 			}).show();
 	});
 
+	// Temp Control
+	$('#sethe').on('click', function() {
+		socket.emit('gcodeLine', { line: 'M104 S'+$('#hotend').val()+'\n' });
+	});
+
+	$('#setbed').on('click', function() {
+		socket.emit('gcodeLine', { line: 'M140 S'+$('#hotend').val()+'\n' });
+	});
+
+
+	// Temp Guages
+	g2 = new JustGage({
+        id: 'g2',
+				relativeGaugeSize: true,
+        value: 0,
+        min: 0,
+        max: 250,
+        symbol: '℃',
+        pointer: true,
+        pointerOptions: {
+          toplength: -15,
+          bottomlength: 10,
+          bottomwidth: 12,
+          color: '#8e8e93',
+          stroke: '#ffffff',
+          stroke_width: 3,
+          stroke_linecap: 'round'
+        },
+        gaugeWidthScale: 1.1,
+        counter: true
+      });
+
+	g3 = new JustGage({
+					id: 'g3',
+						relativeGaugeSize: true,
+						value: 0,
+						min: 0,
+						max: 130,
+						symbol: '℃',
+						pointer: true,
+						pointerOptions: {
+							toplength: -15,
+							bottomlength: 10,
+							bottomwidth: 12,
+							color: '#8e8e93',
+							stroke: '#ffffff',
+							stroke_width: 3,
+							stroke_linecap: 'round'
+						},
+						gaugeWidthScale: 1.1,
+						counter: true
+					});
+
+
 	// temperature [data = T:24.31 /0 @:0 B:24.31 /0 @:0]  // Not in use in UI at the moment but I want to use Marlin's temp sensing at some point to check nozzle or water temp etc on the laser (marlin)
 	socket.on('tempStatus', function(data) {
+
 		if (data.indexOf('ok') == 0) {
 			// this is a normal temp status
 			var fs = data.split(/[TB]/);
@@ -1895,17 +2037,29 @@ $('#boxButton').on('click', function() {
 				b[i] = b[i].trim();
 			}
 			$('#eTC').html(t[0]+'C');
+			g2.refresh(t[0]);
 			$('#eTS').html(t[1]+'C');
 			$('#bTC').html(b[0]+'C');
+			g3.refresh(b[0]);
 			$('#bTS').html(b[1]+'C');
 
 		} else {
 			// this is a waiting temp status
-			var eT = data.split('T');
-			eT = eT[1].split('E');
-			eT = eT[0].slice(1);
-			eT = eT.trim();
-			$('#eTC').html(eT+'C');
+			var fs = data.split(/[TB]/);
+			var t = fs[1].split('/');
+			var b = fs[2].split('/');
+			t[0] = t[0].slice(1);
+			b[0] = b[0].slice(1);
+			for (var i=0; i<2; i++) {
+				t[i] = t[i].trim();
+				b[i] = b[i].trim();
+			}
+			$('#eTC').html(t[0]+'C');
+			g2.refresh(t[0]);
+			$('#eTS').html(t[1]+'C');
+			$('#bTC').html(b[0]+'C');
+			g3.refresh(b[0]);
+			$('#bTS').html(b[1]+'C');
 		}
 	});
 
@@ -2036,7 +2190,7 @@ $('#boxButton').on('click', function() {
 				range:true,
 				min: 0,
 				max: 100,
-				values: [ 5, 40 ],
+				values: [ 0, 100 ],
 				slide: function( event, ui ) {
 					minpwr = [ui.values[ 0 ]];
 					maxpwr = [ui.values[ 1 ]];
@@ -2053,7 +2207,7 @@ $('#boxButton').on('click', function() {
 		$( "#spotsizeslider" ).slider({
 				min: 0,
 				max: 250,
-				values: [ 20 ],
+				values: [ 100 ],
 				slide: function( event, ui ) {
 					//spotSize = [ui.values[ 0 ]];
 					$('#rasterNow').removeClass('disabled');
@@ -2067,6 +2221,7 @@ $('#boxButton').on('click', function() {
 		$('#rasterNow').on('click', function() {
 			spotSize = $( "#spotsizeslider" ).slider( "values", 0 ) / 100;
 			laserFeed = $('#feedRate').val();
+			laserRapid = $('#rapidRate').val();
 			window.globals = {
 				  completed: function() { gcodereceived(); },
 					minpwr2: [minpwr],
@@ -2074,7 +2229,8 @@ $('#boxButton').on('click', function() {
 					spotSize: [spotSize],
 					imgH: [height],
 					imgW: [width],
-					feed: [laserFeed]
+					feed: [laserFeed],
+					rapid: [laserRapid]
 			};
 			window.paper.RasterNow(function() {
 				gcodereceived();
@@ -2101,10 +2257,10 @@ function setImgDims() {
 	width = img.clientWidth;
 	height = img.clientHeight;
 	$("#dims").text(width+'px x '+height+'px');
-	//$('#canvas-1').prop('width', (width*3));
-	//$('#canvas-1').prop('height', (height*3));
-	$('#canvas-1').prop('width', laserxmax);
-	$('#canvas-1').prop('height', laserymax);
+	$('#canvas-1').prop('width', (width*2));
+	$('#canvas-1').prop('height', (height*2));
+	//$('#canvas-1').prop('width', laserxmax);
+	//$('#canvas-1').prop('height', laserymax);
 	var physwidth = spotSizeMul * width;
 	var physheight = spotSizeMul * height;
 	$("#physdims").text(physwidth.toFixed(1)+'mm x '+physheight.toFixed(1)+'mm');
@@ -2119,11 +2275,11 @@ function setImgDims() {
 	BBmaterial = new THREE.LineDashedMaterial( { color: 0xcccccc, dashSize: 10, gapSize: 5, linewidth: 2 });
 	BBgeometry = new THREE.Geometry();
 	BBgeometry.vertices.push(
-		new THREE.Vector3( 0, 0, 0 ),
-		new THREE.Vector3( 0, rectHeight, 0 ),
-		new THREE.Vector3( rectWidth, rectHeight, 0 ),
-		new THREE.Vector3( rectWidth, 0, 0 ),
-		new THREE.Vector3( 0, 0, 0 )
+		new THREE.Vector3( -1, -1, 0 ),
+		new THREE.Vector3( -1, (rectHeight + 1) , 0 ),
+		new THREE.Vector3( (rectWidth + 1), (rectHeight +1), 0 ),
+		new THREE.Vector3( (rectWidth + 1), -1, 0 ),
+		new THREE.Vector3( -1, -1, 0 )
 	);
  	boundingBox= new THREE.Line( BBgeometry, BBmaterial );
 	boundingBox.translateX(laserxmax /2 * -1);

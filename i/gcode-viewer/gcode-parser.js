@@ -1,3 +1,10 @@
+/*
+
+    AUTHOR:  John Lauer
+    -- S??? (laser intensity) Parameter Handling added by AUTHOR: Peter van der Walt
+
+*/
+
 // This is a simplified and updated version of http://gcode.joewalnes.com/ that works with the latest version of Three.js (v68).
 // Updated with code from http://chilipeppr.com/tinyg's 3D viewer to support more CNC type Gcode
 
@@ -276,7 +283,7 @@ function GCodeParser(handlers) {
                 var color = new THREE.Color(line.extruding ? 0x990000 : 0x990000);
 
                 if(typeof line.s === 'undefined'){
-                    opacity = 0.6;
+                    opacity = 0.3;
                 } else {
                     if (firmware.indexOf('Grbl') == 0) {
                       opacity = line.s / 255;

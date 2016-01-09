@@ -1,3 +1,9 @@
+/*
+
+    AUTHOR:  Andrew Hodel
+
+*/
+
 var Millcrum = function(tool) {
 
 	this.gcode = '';

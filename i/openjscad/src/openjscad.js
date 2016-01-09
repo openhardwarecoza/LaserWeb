@@ -1,3 +1,11 @@
+
+/*
+
+    AUTHOR:  OpenJSCAD Development timeStamp
+    Modified to integrate into Laserweb UI by AUTHOR: Peter van der Walt
+
+*/
+
 OpenJsCad = function() {
 };
 

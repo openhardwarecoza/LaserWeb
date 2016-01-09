@@ -1,4 +1,8 @@
+/*
 
+    AUTHOR:  Peter van der Walt
+
+*/
 	// Show all exceptions to the user:
 	OpenJsCad.AlertUserOfUncaughtExceptions();
 

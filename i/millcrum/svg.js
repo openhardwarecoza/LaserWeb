@@ -1,3 +1,9 @@
+/*
+
+    AUTHOR:  Andrew Hodel
+
+*/
+
 var Svg = function() {
 	this.paths = [];
 	this.alerts = [];

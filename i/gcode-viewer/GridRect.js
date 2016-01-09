@@ -1,4 +1,11 @@
+/*
+
+    AUTHOR:  Mr Doob
+
+*/
+
 // Code courtesy of https://github.com/mrdoob/three.js/issues/6549
+
 
 THREE.GridHelperRect = function ( sizeX, stepX, sizeZ, stepZ ) {
 
