@@ -1,13 +1,27 @@
+/*
+
+    AUTHOR:  John Lauer
+    -- Significant UI changes by AUTHOR: Peter van der Walt
+
+*/
+
+
 var scene = null;
 var object = null;
+var cylinder = null;
+var axes = null;
+var axesgrp = null;
+var helper = null;
+
+
 var added = false;
 
 
 // Specific to your machine
 var laserxmax = 600
 var laserymax = 400
-var lineincrement = 50 
-	
+var lineincrement = 50
+
 
 $(function() {
 
@@ -18,27 +32,38 @@ function createObject(gcode) {
   if (object) {
         scene.remove(object);
     }
-    object = createObjectFromGCode(gcode);
-	object.translateX(laserxmax /2 * -1);
-	object.translateY(laserymax /2 * -1);
-		
-    scene.add(object);
-    
+
+	//Create the object
+	createObjectFromGCode(gcode);
+//  object =  drawobject();
+
+	//object.translateX(laserxmax /2 * -1);
+	//object.translateY(laserymax /2 * -1);
+
+    //scene.add(object);
+		//console.log('[VIEWER] - added Object');
+ if (cylinder) {
+        scene.remove(cylinder);
+    }
 	// jogArrow Cylinder
-    		cylinder = new THREE.Mesh(new THREE.CylinderGeometry(0, 5, 40, 15, 1, false), new THREE.MeshNormalMaterial());
-            cylinder.overdraw = true;
-            cylinder.rotation.x = -90 * Math.PI / 180;
-            cylinder.material.opacity = 0.6;
-            cylinder.material.transparent = true;
-            cylinder.castShadow = false;
-            cylinder.position.x = (laserxmax /2 * -1)
+    	cylinder = new THREE.Mesh(new THREE.CylinderGeometry(0, 5, 35, 15, 1, false), new THREE.MeshBasicMaterial( {color: 0x005599} ));
+      cylinder.overdraw = true;
+      cylinder.rotation.x = -90 * Math.PI / 180;
+      cylinder.material.opacity = 0.6;
+      cylinder.material.transparent = true;
+      cylinder.castShadow = false;
+      cylinder.position.x = (laserxmax /2 * -1)
 			cylinder.position.y = (laserymax /2 * -1)
 			cylinder.position.z = 20;
-			cylinder.needsUpdate = true;	
+			cylinder.needsUpdate = true;
+			//console.log('[VIEWER] - added Cone');
 		scene.add(cylinder)
-	
-	
-	
+
+
+ if (helper) {
+        scene.remove(helper);
+    }
+
 	helper = new THREE.GridHelperRect((laserxmax /2), 10, (laserymax /2), 10);
             helper.setColors(0x0000ff, 0x707070);
             helper.position.y = 0;
@@ -51,12 +76,20 @@ function createObject(gcode) {
             //console.log("helper grid:", helper);
             this.grid = helper;
             //this.sceneAdd(this.grid);
-			scene.add(helper);
-	
-	
-    
+		//console.log('[VIEWER] - added Helpert');
+		scene.add(helper);
+
+
+
+ if (axes) {
+        scene.remove(axes);
+    }
+
+ if (axesgrp) {
+        scene.remove(axesgrp);
+    }
 	axesgrp = new THREE.Object3D();
-            
+
 	        axes = new THREE.AxisHelper(120);
 
             axes.material.transparent = true;
@@ -65,13 +98,14 @@ function createObject(gcode) {
             axes.position.set(0,0,-0.0001);
             axes.translateX(laserxmax /2 * -1);
 			axes.translateY(laserymax /2 * -1);
-		
-            scene.add(axes);
-		   
+
+			//console.log('[VIEWER] - added Axes');
+      scene.add(axes);
+
 			var x = [];
 			var y = [];
-		    for (var i = 0; i < laserxmax ; i+=lineincrement) { 
-				
+		    for (var i = 0; i < laserxmax ; i+=lineincrement) {
+
 				x[i] = this.makeSprite(this.scene, "webgl", {
 					x: i,
 					y: -10,
@@ -82,8 +116,8 @@ function createObject(gcode) {
 				axesgrp.add(x[i]);
 			}
 
-			 for (var i = 0; i < laserymax ; i+=lineincrement) { 
-				
+			 for (var i = 0; i < laserymax ; i+=lineincrement) {
+
 				y[i] = this.makeSprite(this.scene, "webgl", {
 					x: -10,
 					y: i,
@@ -115,34 +149,50 @@ function createObject(gcode) {
                 text: "Z",
                 color: "#0000ff"
             });
-			
-			
+
+
             axesgrp.add(xlbl);
             axesgrp.add(ylbl);
             axesgrp.add(zlbl);
-			
+
 			axesgrp.translateX(laserxmax /2 * -1);
 			axesgrp.translateY(laserymax /2 * -1);
+			//console.log('[VIEWER] - added Axesgrp');
 			scene.add(axesgrp);
 
 	}
 
 function openGCodeFromText() {
-    var gcode = $('#gcodepreview').val();
-	if (document.hasFocus()) {
+	$('#renderprogressholder .progress-bar').width(0);
+	//console.log('Starting Gcode Render');
+	var startTime = Date.now();
+	var gcode = $('#gcodepreview').val();
+	//if (document.hasFocus()) {
 	createObject(gcode);
         //console.log('adding object with existing focus');
-    } else {
+  //  } else {
         // wait for focus, then render
         //console.log('waiting for focus');
-	$(window).bind('focus', function(event) {
-	    createObject(gcode);
-            //console.log('focus exists');
-            // unbind for next object load
-            $(this).unbind(event);
-        });
-    }
+	//$(window).bind('focus', function(event) {
+	//    createObject(gcode);
+  //          //console.log('focus exists');
+  //          // unbind for next object load
+          //  $(this).unbind(event);
+  //      });
+  //  }
+	console.timeEnd("Process 3D View");
+	var currentTime = Date.now();
+	var elapsed = (currentTime - startTime);
+	$('#console').append('<p class="pf" style="color: #009900;"><b>3D Render completed in '+elapsed+' ms</b></p>');
+	$('#console').scrollTop($("#console")[0].scrollHeight - $("#console").height());
+
+	// Pretty Gcode Viewer
+	//$("#gcodelinestbody").empty();
+
+  // rest of gcodelinestbody is written by the doChunk on gcode-parser
+
 }
+
 
 function makeSprite(scene, rendererType, vals) {
             var canvas = document.createElement('canvas'),
@@ -170,6 +220,7 @@ function makeSprite(scene, rendererType, vals) {
 
             var texture = new THREE.Texture(canvas);
             texture.needsUpdate = true;
+						texture.minFilter = THREE.LinearFilter;
 
             var material = new THREE.SpriteMaterial({
                 map: texture,
@@ -196,4 +247,4 @@ function makeSprite(scene, rendererType, vals) {
 
             //scene.add(textObject);
             return textObject;
-			}
+}

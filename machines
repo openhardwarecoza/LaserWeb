@@ -1,0 +1,1 @@
+{"machines":[{"name":"Freeburn2","opts":[{"o":"laserxmax","v":"600"},{"o":"laserymax","v":"400"},{"o":"undefined","v":""},{"o":"startgcode","v":"G1G90"},{"o":"endgcode","v":"G28 X0"},{"o":"laseron","v":"M03"},{"o":"laseroff","v":"M05"},{"o":"0svalue","v":"0"},{"o":"100svaluee","v":"255"},{"o":"undefined","v":""}]}]}
